@@ -91,7 +91,35 @@ if(/roi|lohnt|auszahl|wirtschaft|wert/.test(t))return {text:"Der wirtschaftliche
 if(r)return r;
 return {text:"Cora kann Fragen beantworten, den Bedarf einordnen und bei Kontaktabsicht eine strukturierte Anfrage vorbereiten. Schreiben Sie mir z. B. Ihre Branche und Ihr Ziel – etwa „Wir sind ein Handwerksbetrieb und wollen mehr Anfragen für Heizungen.“"};
 }
-function sendDemo(text){if(!text.trim())return;bubble(text,true);const wait=document.createElement("div");wait.className="typing";wait.textContent="Cora schreibt …";messages.appendChild(wait);setTimeout(()=>{wait.remove();const r=answer(text);bubble(r.text);if(r.industry)qualify(r)},420)}
+let demoHistory=[];
+function getDemoHistory(){return demoHistory.slice(-8)}
+async function askCora(text){
+  const local=answer(text);
+  try{
+    const res=await fetch("https://bespoke-empanada-7e447d.netlify.app/.netlify/functions/cora-chat",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({message:text,history:getDemoHistory()})
+    });
+    const data=await res.json();
+    if(!res.ok||!data.ok||!data.reply)throw new Error("AI unavailable");
+    return {text:data.reply,industry:local.industry,need:local.need,next:local.next,live:true};
+  }catch(e){
+    return {...local,live:false};
+  }
+}
+async function sendDemo(text){
+  if(!text.trim())return;
+  const clean=text.trim();
+  bubble(clean,true);
+  demoHistory.push({role:"user",text:clean});
+  const wait=document.createElement("div");wait.className="typing";wait.textContent="Cora schreibt …";messages.appendChild(wait);
+  const r=await askCora(clean);
+  wait.remove();
+  bubble(r.text);
+  demoHistory.push({role:"model",text:r.text});
+  if(r.industry)qualify(r);
+}
 document.getElementById("demoSend").onclick=()=>{sendDemo(input.value);input.value=""};
 input.addEventListener("keydown",e=>{if(e.key==="Enter"){sendDemo(input.value);input.value=""}});
 document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));b.classList.add("active");const map={fitness:"Ich habe ein Fitnessstudio. Wie kann Cora mir helfen?",handwerk:"Wir sind ein SHK-Betrieb. Wie kann Cora unsere Anfragen qualifizieren?",restaurant:"Wir haben ein Restaurant. Wie kann Cora bei Reservierungsfragen helfen?",immobilien:"Ich bin Immobilienmakler. Wie kann Cora Interessenten qualifizieren?",b2b:"Wir verkaufen B2B-Dienstleistungen. Wie kann Cora mehr qualifizierte Anfragen vorbereiten?",kanzlei:"Ich habe eine Kanzlei. Wie kann Cora mir helfen?",roi:"Wie zahlt sich Cora für mich aus?",preis:"Was kostet Cora?"};input.value=map[b.dataset.p]||"";sendDemo(input.value);input.value=""});
