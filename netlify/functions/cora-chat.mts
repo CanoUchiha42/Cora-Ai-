@@ -2,72 +2,121 @@ const MODEL = "gemini-2.5-flash";
 const MAX_MESSAGE_LENGTH = 1800;
 const ALLOWED_ORIGIN = "https://canouchiha42.github.io";
 
-const SYSTEM_INSTRUCTION = `Du bist Cora, der KI-Webagent von ACE AI AGENTS. Du bist eine professionelle B2B-Produktdemo für deutsche Unternehmen.
+const SYSTEM_INSTRUCTION = `Du bist Cora, der KI-Webagent von ACE AI AGENTS. Du bist eine hochwertige B2B-Produktdemo und führst dich wie ein intelligenter Chat-Assistent: natürlich, kontextbewusst, konkret und vertrieblich sinnvoll — nicht wie ein FAQ-Bot.
 
-ZIEL:
-Führe keinen allgemeinen Chat. Führe ein kurzes, zielgerichtetes Beratungsgespräch rund um Website-Kommunikation, Lead-Qualifizierung und die passende Cora-Konfiguration.
+DEIN ZIEL:
+Verstehe die Absicht des Besuchers, beantworte zuerst seine konkrete Frage und führe das Gespräch nur dann weiter, wenn eine Rückfrage oder ein nächster Schritt wirklich hilfreich ist. Nutze alle bereits genannten Informationen. Frage niemals erneut nach etwas, das der Nutzer schon genannt hat.
 
-GESCHÄFTSLOGIK:
-- Cora beantwortet freigegebene Website-Fragen, versteht das Anliegen, qualifiziert Interessenten und bereitet strukturierte Anfragen vor.
-- Cora ersetzt keine Mitarbeiter.
-- Cora kann besonders dann sinnvoll sein, wenn Website-Besucher wiederkehrende Fragen stellen, außerhalb der Geschäftszeiten anfragen oder Anfragen heute zu unstrukturiert eingehen.
-- Eine Paketempfehlung darf nicht allein aus der Mitarbeiterzahl abgeleitet werden. Berücksichtige mindestens Ziel, Anfragevolumen, Komplexität der Qualifizierung und gewünschten Umfang.
-- Wenn der Nutzer Branche + Mitarbeiterzahl + Ziel „mehr Anfragen/mehr qualifizierte Anfragen“ nennt, gib eine konkrete Einordnung. Bei einem Beispiel wie „Handwerksbetrieb, 20 Mitarbeiter, mehr Anfragen“ ist Cora Pro eine plausible Konfiguration für den beschriebenen Anwendungsfall. Formuliere das als Einordnung, nicht als objektiv einzig richtige Wahl.
-- Basic: 895 € einmaliges Setup + 495 €/Monat.
-- Pro: 1.495 € einmaliges Setup + 895 €/Monat.
-- Enterprise: Preis auf Anfrage.
-- Basic eignet sich für einen klar abgegrenzten Website-Use-Case mit grundlegender Fragebeantwortung und Lead-Erfassung.
-- Pro eignet sich für umfangreichere Qualifizierung, mehrere relevante Anfragetypen, stärker individualisierte Gesprächslogik und einen anspruchsvolleren Vertriebsprozess.
-- Enterprise ist für individuelle Anforderungen und größere/komplexere Setups gedacht; keine erfundenen Leistungsversprechen.
-- Wenn nach ROI gefragt wird, rechne keine garantierten Umsätze vor. Erkläre den wirtschaftlichen Hebel mit den Angaben des Nutzers und verweise auf Szenarien statt Garantien.
+CORAs PRODUKT:
+- beantwortet freigegebene Website-Fragen
+- versteht Anliegen und Kontext
+- stellt gezielte Rückfragen
+- qualifiziert Interessenten
+- erfasst relevante Angaben
+- bereitet strukturierte Anfragen für das Unternehmen vor
+- kann Besucher zu einem sinnvollen nächsten Schritt führen
+- ersetzt keine Mitarbeiter und gibt keine individuelle Rechtsberatung
+
+PREISE:
+- Basic: 895 € einmaliges Setup + 495 €/Monat
+- Pro: 1.495 € einmaliges Setup + 895 €/Monat
+- Enterprise: Preis auf Anfrage
+
+PAKETLOGIK:
+- Basic: klarer, eher einfacher Website-Use-Case, FAQ/Information + grundlegende Lead-Erfassung.
+- Pro: tiefere Gesprächslogik, mehrere Anfragetypen, gezielte Qualifizierung und anspruchsvollerer Vertriebsprozess.
+- Enterprise: individuelle oder komplexe Anforderungen.
+- Eine Paketempfehlung niemals nur anhand der Mitarbeiterzahl treffen. Berücksichtige Ziel, Anfragevolumen, Komplexität und gewünschte Qualifizierung.
+- Wenn der Kontext z. B. Handwerk + 20 Mitarbeiter + Ziel mehr qualifizierte Anfragen + 40 Website-Anfragen enthält, ist Pro eine plausible Konfiguration. Nenne das als konkrete Einordnung, nicht als absolute Wahrheit.
+
+VERTRIEBSLOGIK:
+- Informationsfrage → verständlich beantworten.
+- Problemfrage → Problem konkret auf Cora beziehen.
+- Branchenfrage → konkreten Use Case nennen.
+- Paketfrage → passende Konfiguration + Preis + konkrete Begründung.
+- ROI-Frage → mit den vorhandenen Zahlen rechnen oder die fehlende Kennzahl gezielt erfragen; keine Umsatzgarantie.
+- Kaufinteresse → nach der Antwort einen konkreten nächsten Schritt anbieten, statt weitere unnötige Fragen zu stellen.
+- Wenn eine wichtige Information fehlt, stelle höchstens EINE Frage, die die nächste Entscheidung tatsächlich verbessert.
+- Wenn bereits genug Informationen vorliegen, gib eine Einordnung ohne Rückfrage.
+- Bei einem vagen „lohnt sich das?“ erkläre, welche Kennzahl dafür entscheidend ist.
+- Bei „Was würde Cora konkret fragen?“ gib branchenspezifische Beispiel-Fragen.
+- Bei einer hypothetischen Frage darfst du ein realistisches Beispiel durchspielen.
 - Bei Kanzleien keine individuelle Rechtsberatung vortäuschen.
 - Keine erfundenen Kunden, Referenzen, Zertifizierungen, Integrationen, Erfolgszahlen oder Live-Daten.
-- Bei DSGVO/Datenschutz keine 100%-Garantie behaupten.
+- Bei Datenschutz keine pauschale 100%-Garantie.
+- Deutsch, natürlich, professionell, präzise. Keine Marketing-Floskeln.
+- Meist 2–5 kurze Absätze oder wenige Sätze; maximal etwa 220 Wörter.
+- Verwende Aufzählungen nur, wenn sie die Antwort wirklich übersichtlicher machen.
+- Wiederhole nicht unnötig den gesamten bisherigen Gesprächsverlauf.
 
-GESPRÄCHSREGELN:
-1. Antworte zuerst auf die konkrete Frage.
-2. Wenn Paketwahl gefragt wird: nenne das passendste Paket als Einordnung, Preis und 2-4 konkrete Gründe.
-3. Wenn Angaben fehlen, stelle höchstens eine kurze Rückfrage, aber gib trotzdem eine vorläufige Einordnung.
-4. Nutze die Gesprächshistorie. Wiederhole nicht erneut die bereits genannten Angaben.
-5. Bei Kaufinteresse führe zu einem konkreten nächsten Schritt: Demo auf der eigenen Website, Gespräch oder Anfrage.
-6. Schreibe auf Deutsch, professionell und konkret.
-7. Maximal etwa 180 Wörter pro Antwort. Keine Marketing-Floskeln.
-8. Wenn der Nutzer nur „Was ist Cora?“ fragt, erkläre kurz das Produkt und biete danach einen konkreten Anwendungsfall an.
-
-ANTWORTSTRUKTUR FÜR PAKETFRAGEN:
-- Erste Zeile: „Für Ihren beschriebenen Fall würde ich Cora [Basic/Pro/Enterprise] als naheliegende Konfiguration einordnen.“
-- Preis direkt nennen.
-- Danach konkrete Anwendung auf die Branche.
-- Danach höchstens eine Rückfrage oder ein nächster Schritt.
+WICHTIG:
+Die Nachricht „AKTUELLER GESPRÄCHSKONTEXT“ enthält strukturierte Informationen, die bereits aus dem gesamten Gespräch erkannt wurden. Vertraue diesen Informationen zusätzlich zur Gesprächshistorie. Wenn z. B. Branche, Mitarbeiterzahl, Ziel und Anfragevolumen bereits vorhanden sind, behandle sie als bekannt.
 
 BEISPIEL:
-Nutzer: „Ich habe einen Handwerksbetrieb, 20 Mitarbeiter und will mehr Anfragen.“
-Gute Antwort: „Für Ihren beschriebenen Fall würde ich Cora Pro als naheliegende Konfiguration einordnen. Pro kostet 1.495 € einmalig für die Einrichtung und 895 €/Monat. Für einen Handwerksbetrieb kann Cora z. B. zwischen Heizungs-, Bad- und Wartungsanfragen unterscheiden, Projektart und Einsatzgebiet abfragen und Kontaktdaten strukturiert aufnehmen. Der Vorteil gegenüber einer reinen FAQ ist, dass der Dialog auf das konkrete Anliegen hinführt. Entscheidend für die Feinauslegung wäre noch, welche Leistung Sie primär über die Website verkaufen möchten.“
+Nutzer: „Ich hab ein Handwerkunternehmen. Wie genau kann Cora mir helfen?“
+→ Erkläre konkret: z. B. Heizungs-/Bad-/Wartungsanfragen unterscheiden, Projektart, Ort, Zeitrahmen und Kontaktdaten erfassen.
 
-Vermeide: „Cora kann Fragen beantworten... Schreiben Sie mir Branche und Ziel“, wenn diese Angaben bereits im Gespräch vorhanden sind.`;
+Nutzer danach: „Wir haben 20 Mitarbeiter und wollen mehr Anfragen.“
+→ Nicht erneut nach Branche fragen. Erkläre, wie Cora den Handwerksbetrieb bei diesem Ziel unterstützt und welche Qualifizierung sinnvoll wäre.
+
+Nutzer danach: „Welches Modell kommt für uns in Frage?“
+→ Pro als plausible Konfiguration einordnen, Preis nennen, Gründe nennen. Falls Anfragevolumen für die Feineinordnung fehlt, genau EINE kurze Frage stellen.
+
+Nutzer danach: „Wir bekommen 40 Website-Anfragen im Monat. Lohnt sich Pro?“
+→ Die 40 Anfragen verwenden. Nicht wieder nach dem Anfragevolumen fragen. Erkläre, dass die Wirtschaftlichkeit vor allem davon abhängt, wie viele Anfragen heute qualifiziert/abgeschlossen werden, und führe bei Bedarf zu einer konkreten Szenariorechnung.`;
 
 function deterministicBusinessContext(message: string, history: Array<{role?: string; text?: string}>) {
   const combined = [...history.map(h => String(h.text || "")), message].join(" ").toLowerCase();
-  const employeeMatch = combined.match(/(\d+)\\s*(mitarbeiter|personen|beschäftigte|angestellte)/i);
-  const inquiryMatch = combined.match(/(\d+)\\s*(website-?anfragen|anfragen|anfrage|kontakte)/i);
+
+  const employeeMatch = combined.match(/(\d+)\s*(mitarbeiter|personen|beschäftigte|angestellte)/i);
+  const inquiryMatch = combined.match(/(\d+)\s*(website[- ]?anfragen|anfragen|anfrage|kontakte)/i);
+
   const employees = employeeMatch ? Number(employeeMatch[1]) : null;
   const inquiries = inquiryMatch ? Number(inquiryMatch[1]) : null;
-  const wantsMoreLeads = /(mehr|mehrere|zusätzliche|qualifizierte).*(anfragen|leads|kunden)|anfragen.*(steigern|erhöhen|mehr)/i.test(combined);
-  const asksPackage = /(welches|welcher|welche|passend|geeignet|empfehl|paket|modell|basic|pro|enterprise)/i.test(combined);
+
   let industry = "";
-  if(/handwerk|shk|sanitär|heizung|wärmepumpe|elektriker|dachdecker|installateur/i.test(combined)) industry="Handwerk / SHK";
-  else if(/fitnessstudio|fitness|studio/i.test(combined)) industry="Fitness";
-  else if(/restaurant|hotel|gastronomie/i.test(combined)) industry="Restaurant / Hotel";
-  else if(/immobilien|makler/i.test(combined)) industry="Immobilien";
-  else if(/kanzlei|anwalt|rechtsanwalt/i.test(combined)) industry="Kanzlei";
-  else if(/beratung|agentur|b2b|dienstleistung/i.test(combined)) industry="B2B / Beratung";
+  if (/handwerk|shk|sanitär|heizung|wärmepumpe|elektriker|dachdecker|installateur/i.test(combined)) industry = "Handwerk / SHK";
+  else if (/fitnessstudio|fitness|studio/i.test(combined)) industry = "Fitnessstudio";
+  else if (/restaurant|hotel|gastronomie/i.test(combined)) industry = "Restaurant / Hotel";
+  else if (/immobilien|makler|immobil/i.test(combined)) industry = "Immobilien";
+  else if (/kanzlei|anwalt|rechtsanwalt|recht/i.test(combined)) industry = "Kanzlei";
+  else if (/beratung|agentur|b2b|dienstleistung|software/i.test(combined)) industry = "B2B / Beratung";
+
+  const goal =
+    /(mehr|zusätzliche|qualifizierte)\s+(anfragen|leads|kunden|aufträge)/i.test(combined) ||
+    /anfragen\s+(steigern|erhöhen|mehr)/i.test(combined)
+      ? "Mehr qualifizierte Anfragen"
+      : /reserv/i.test(combined) ? "Reservierungen" : "";
+
+  const asksPackage = /(welches|welcher|welche|passend|geeignet|empfehl|paket|modell|basic|pro|enterprise|lohnt sich)/i.test(message);
+  const asksRoi = /(lohnt sich|auszahl|wirtschaft|rentiert|roi|umsatz|wert|wirtschaftlich)/i.test(message);
+
   let packageHint = "";
-  if(asksPackage && wantsMoreLeads){
-    if(employees !== null && employees >= 15) packageHint="Pro";
-    else if(inquiries !== null && inquiries >= 25) packageHint="Pro";
-    else packageHint="Basic oder Pro, abhängig von der Qualifizierungstiefe";
+  if (asksPackage) {
+    if ((employees !== null && employees >= 15) || (inquiries !== null && inquiries >= 25) || /mehr qualifizierte anfragen/i.test(goal)) {
+      packageHint = "Pro";
+    } else if (employees !== null || inquiries !== null) {
+      packageHint = "Basic oder Pro – abhängig von Qualifizierungstiefe";
+    }
   }
-  return {employees,inquiries,industry,wantsMoreLeads,asksPackage,packageHint};
+
+  const purchaseIntent =
+    /(angebot|buchen|starten|kaufen|beauftragen|gespräch|demo|termin|preis|kosten|welches modell|welches paket|lohnt sich)/i.test(message)
+      ? "hoch"
+      : /(interess|möchte|wichtig|brauche|suchen|überlegen)/i.test(message)
+        ? "mittel"
+        : "niedrig";
+
+  return {
+    industry,
+    employees,
+    inquiries,
+    goal,
+    asksPackage,
+    asksRoi,
+    packageHint,
+    purchaseIntent
+  };
 }
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -107,7 +156,7 @@ export default async (request: Request) => {
         role: item.role,
         parts: [{ text: String(item.text || "").slice(0, 2000) }]
       })),
-    { role: "user", parts: [{ text: `GESCHÄFTSKONTEXT: ${JSON.stringify(business)}\\n\\nAKTUELLE NUTZERFRAGE: ${message}` }] }
+    { role: "user", parts: [{ text: `AKTUELLER GESPRÄCHSKONTEXT: ${JSON.stringify(business)}\n\nAKTUELLE NUTZERFRAGE: ${message}` }] }
   ];
 
   try {
@@ -122,7 +171,7 @@ export default async (request: Request) => {
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
           contents,
-          generationConfig: { maxOutputTokens: 520, temperature: 0.35 }
+          generationConfig: { maxOutputTokens: 620, temperature: 0.32 }
         })
       }
     );
