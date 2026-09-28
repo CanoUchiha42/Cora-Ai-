@@ -1,0 +1,20 @@
+name: Cora quality checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - run: node --check js/config.js
+      - run: node --check js/demo-data.js
+      - run: node --check js/demo-engine.js
+      - run: node --check js/qualification.js
+      - run: node --check js/ui.js
