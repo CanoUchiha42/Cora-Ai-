@@ -70,9 +70,11 @@ function deterministicBusinessContext(message: string, history: Array<{role?: st
 
   const employeeMatch = combined.match(/(\d+)\s*(mitarbeiter|personen|beschäftigte|angestellte)/i);
   const inquiryMatch = combined.match(/(\d+)\s*(website[- ]?anfragen|anfragen|anfrage|kontakte)/i);
+  const conversionMatch = combined.match(/(\d+(?:[.,]\d+)?)\s*%\s*(?:abschlussquote|abschlussrate|conversion(?:rate)?|abschlüsse)/i);
 
   const employees = employeeMatch ? Number(employeeMatch[1]) : null;
   const inquiries = inquiryMatch ? Number(inquiryMatch[1]) : null;
+  const conversionRate = conversionMatch ? Number(conversionMatch[1].replace(",", ".")) : null;
 
   let industry = "";
   if (/handwerk|shk|sanitär|heizung|wärmepumpe|elektriker|dachdecker|installateur/i.test(combined)) industry = "Handwerk / SHK";
@@ -111,6 +113,7 @@ function deterministicBusinessContext(message: string, history: Array<{role?: st
     industry,
     employees,
     inquiries,
+    conversionRate,
     goal,
     asksPackage,
     asksRoi,
