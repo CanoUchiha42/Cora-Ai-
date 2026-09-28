@@ -15,7 +15,7 @@ Cora beantwortet freigegebene Website-Fragen, versteht Anliegen, qualifiziert In
 Keine erfundenen Kunden, Referenzen, Zertifizierungen, Integrationen, Live-Daten oder Erfolgszahlen. Keine Umsatzgarantie. Keine pauschale 100%-DSGVO-Garantie.
 Preise exakt: Basic 895 € einmalig + 495 €/Monat; Pro 1.495 € einmalig + 895 €/Monat; Enterprise Preis auf Anfrage.
 Basic = klarer Use Case + einfache Lead-Erfassung. Pro = mehrere Anfragetypen + tiefere Qualifizierung. Enterprise = individuelle Prozesse, mehrere Standorte oder komplexe Anforderungen. Nicht allein nach Mitarbeiterzahl entscheiden.
-ROI nur als Modellrechnung auf Basis der Angaben, niemals als Umsatzversprechen.
+ROI nur als Modellrechnung auf Basis der Angaben, niemals als Umsatzversprechen. Bei Fragen wie „Wie bekomme ich Pro wieder raus?“, „Lohnt sich Pro?“ oder „Ist Cora wie ein Angestellter?“ beantworte zuerst die Kosten-/Wirtschaftlichkeitsfrage und den Mitarbeitervergleich konkret; frage nicht erneut nach bereits bekannten Angaben. Wenn Anfragevolumen, Abschlussquote und Kundenwert vorhanden sind, rechne ein Szenario mit 10 % zusätzlichen qualifizierten Anfragen und kennzeichne es ausdrücklich als Modellrechnung.
 Kanzlei: nur allgemeine Informationen und organisatorische Vorqualifizierung, keine individuelle Rechtsberatung. Arztpraxis: keine Diagnose oder individuelle medizinische Empfehlung. Steuerberatung: keine individuelle Steuerberatung.
 Wenn eine kundenspezifische Tatsache nicht aus freigegebenem Wissen vorliegt, sage ausdrücklich, dass dir diese Information nicht vorliegt, statt zu raten.
 Deutsch, Sie-Ansprache, ruhig, präzise, 2–5 kurze Absätze oder wenige Stichpunkte. Keine Marketing-Floskeln.`;
@@ -28,8 +28,8 @@ function context(message:string,history:Array<{role?:string;text?:string}>){
  const combined=[...history.map(x=>String(x.text||"")),message].join(" ").toLowerCase();
  const em=combined.match(/(\d+)\s*(mitarbeiter|personen|beschäftigte|angestellte|mitglieder)/i);
  const iq=combined.match(/(\d+)\s*(website[- ]?anfragen|anfragen|kontakte|leads)/i);
- const cr=combined.match(/(\d+(?:[.,]\d+)?)\s*%\s*(abschlussquote|abschlussrate|conversion(?:rate)?)/i);
- let industry="";
+ const cr=combined.match(/(\d+(?:[.,]\d+)?)\s*%\s*(abschlussquote|abschlussrate|conversion(?:rate)?)/i);\n const cv=combined.match(/(?:durchschnittlicher kundenwert|kundenwert|mandant(?:en)?wert|auftragswert|durchschnittlicher auftragswert).*?(\d[\d\\s.,]*)\s*(?:€|euro)/i); if(cv)averageCustomerValue=Number(cv[1].replace(/\\s/g,"").replace(/\\.(?=\\d{3})/g,"").replace(",","."));
+ let industry=""; let specialization=""; let averageCustomerValue:number|null=null;
  if(/handwerk|shk|heizung|wärmepumpe|sanitär|bad/.test(combined))industry="Handwerk / SHK";
  else if(/fitnessstudio|fitness|probetraining/.test(combined))industry="Fitnessstudio";
  else if(/restaurant/.test(combined))industry="Restaurant";
@@ -40,7 +40,7 @@ function context(message:string,history:Array<{role?:string;text?:string}>){
  else if(/arztpraxis|arzt|praxis/.test(combined))industry="Arztpraxis";
  else if(/saas|software/.test(combined))industry="SaaS-Unternehmen";
  else if(/mittelstand|b2b|beratung|agentur|dienstleistung/.test(combined))industry="B2B / Beratung";
- return {industry,employees:em?Number(em[1]):null,inquiries:iq?Number(iq[1]):null,conversionRate:cr?Number(cr[1].replace(",",".")):null,goal:/mehr.*(anfragen|leads|kunden|aufträge)|qualifizierte.*anfragen|probetraining|reservier/.test(combined)?"Mehr qualifizierte Anfragen":"","purchaseIntent":/buchen|beauftragen|angebot|starten|kaufen|termin|gespräch/.test(message)?"hoch":/interess|möchte|brauche|suche|überlege/.test(message)?"mittel":"niedrig"};
+ return {industry,specialization,averageCustomerValue,employees:em?Number(em[1]):null,inquiries:iq?Number(iq[1]):null,conversionRate:cr?Number(cr[1].replace(",",".")):null,goal:/mehr.*(anfragen|leads|kunden|aufträge)|qualifizierte.*anfragen|probetraining|reservier/.test(combined)?"Mehr qualifizierte Anfragen":"","purchaseIntent":/buchen|beauftragen|angebot|starten|kaufen|termin|gespräch/.test(message)?"hoch":/interess|möchte|brauche|suche|überlege/.test(message)?"mittel":"niedrig"};
 }
 export default async(request:Request)=>{
  const origin=request.headers.get("origin")||"";
