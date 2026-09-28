@@ -85,21 +85,53 @@ kanzlei:{text:"Für eine Kanzlei kann Cora allgemeine Informationen zu Leistunge
 const messages=document.getElementById("messages"), input=document.getElementById("demoInput");
 function bubble(t,u=false){const d=document.createElement("div");d.className="demoMsg"+(u?" user":"");d.textContent=t;messages.appendChild(d);messages.scrollTop=messages.scrollHeight}
 function qualify(r){document.getElementById("qual").classList.add("show");document.getElementById("qIndustry").textContent=r.industry;document.getElementById("qNeed").textContent=r.need;document.getElementById("qNext").textContent=r.next}
-function answer(text){const t=text.toLowerCase();let r=null;for(const k in replies){if((k==="fitness"&&/fitness|studio|training/.test(t))||(k==="handwerk"&&/handwerk|shk|heizung|sanitär/.test(t))||(k==="restaurant"&&/restaurant|hotel|reserv/.test(t))||(k==="immobilien"&&/immobil|wohnung|haus|makler/.test(t))||(k==="b2b"&&/b2b|beratung|dienstleistung|software/.test(t))||(k==="kanzlei"&&/kanzlei|anwalt|recht/.test(t))){r=replies[k];break}}
-if(/preis|kosten|basic|pro/.test(t))return {text:"Cora Basic kostet 895 € einmalig für das Setup und 495 € monatlich. Cora Pro kostet 1.495 € einmalig und 895 € monatlich. Enterprise ist auf Anfrage verfügbar."};
-if(/roi|lohnt|auszahl|wirtschaft|wert/.test(t))return {text:"Der wirtschaftliche Hebel hängt von Traffic, bisheriger Anfragequote, Kundenwert und tatsächlicher Rückgewinnung ab. Der ROI-Rechner auf dieser Seite macht diese Annahmen sichtbar."};
-if(r)return r;
-return {text:"Cora kann Fragen beantworten, den Bedarf einordnen und bei Kontaktabsicht eine strukturierte Anfrage vorbereiten. Schreiben Sie mir z. B. Ihre Branche und Ihr Ziel – etwa „Wir sind ein Handwerksbetrieb und wollen mehr Anfragen für Heizungen.“"};
+function answer(text){
+  const t=text.toLowerCase();
+  let r=null;
+  for(const k in replies){
+    if((k==="fitness"&&/fitness|studio|training|mitglied/.test(t))||
+       (k==="handwerk"&&/handwerk|shk|heizung|sanitär|wärmepumpe|monteur/.test(t))||
+       (k==="restaurant"&&/restaurant|hotel|reserv|zimmer|gast/.test(t))||
+       (k==="immobilien"&&/immobil|wohnung|haus|makler|objekt/.test(t))||
+       (k==="b2b"&&/b2b|beratung|dienstleistung|software|agentur/.test(t))||
+       (k==="kanzlei"&&/kanzlei|anwalt|recht|mandat/.test(t))){r=replies[k];break}
+  }
+
+  if(/preis|kosten|basic|pro|monatlich|setup/.test(t)){
+    return {text:"Cora Basic: 895 € einmaliges Setup + 495 € monatlich. Cora Pro: 1.495 € einmaliges Setup + 895 € monatlich. Enterprise: Preis auf Anfrage. Wenn Sie mir Ihre ungefähren Website-Anfragen pro Monat nennen, kann ich den wirtschaftlichen Hebel anhand eines konkreten Szenarios einordnen."};
+  }
+
+  if(/roi|lohnt|auszahl|wirtschaft|wert|rentiert|umsatz/.test(t)){
+    const m=t.match(/(\\d+)\\s*(anfragen|anfrage|kontakte)/);
+    const inquiries=m?Number(m[1]):null;
+    if(inquiries){
+      return {text:"Bei "+inquiries+" Website-Anfragen pro Monat ist die entscheidende Frage nicht nur die Menge, sondern wie viele davon heute ohne ausreichende Qualifizierung verloren gehen. Cora kann z. B. Anliegen, Bedarf und Kontaktabsicht direkt im Erstgespräch strukturieren. Für eine belastbare Szenario-Rechnung können Sie im ROI-Rechner oben Anfragequote, Abschlussquote und Kundenwert einsetzen."};
+    }
+    return {text:"Der wirtschaftliche Hebel entsteht dort, wo bereits Website-Interesse vorhanden ist, aber Fragen, Erreichbarkeit oder fehlende Informationen den nächsten Schritt bremsen. Der ROI-Rechner macht daraus ein Szenario mit Ihren eigenen Besucher-, Anfrage-, Abschluss- und Kundenwert-Annahmen — keine Umsatzgarantie."};
+  }
+
+  if(r){
+    if(r.industry==="Kanzlei" && /\\d+\\s*(mitarbeiter|personen|anwälte)/.test(t)){
+      return {text:"Bei einer Kanzlei mit mehreren Mitarbeitern kann Cora den Erstkontakt vorstrukturieren: allgemeine Fragen zu Leistungen und Kontaktwegen beantworten, das Anliegen kategorisieren und relevante Kontaktdaten für die zuständige Person vorbereiten. Sie sollte dabei keine individuelle Rechtsberatung geben. Bei rund 30 Website-Anfragen im Monat könnte der konkrete Nutzen darin liegen, aus kurzen oder unklaren Nachrichten bereits strukturierte Erstinformationen zu machen.",industry:r.industry,need:"Anliegen + Bedarf strukturieren",next:"Zuständigkeit vorbereiten"};
+    }
+    return r;
+  }
+
+  if(/mitarbeiter|unternehmen|website|website-anfragen/.test(t)){
+    return {text:"Cora arbeitet direkt auf Ihrer Website: Sie beantwortet freigegebene Fragen, ordnet das Anliegen ein und kann bei konkretem Interesse relevante Angaben für eine Anfrage erfassen. Nennen Sie mir Branche, ungefähres Anfragevolumen und Ziel, dann kann ich den Ablauf konkreter machen."};
+  }
+
+  return {text:"Cora kann mehr als allgemeine Fragen beantworten: Sie kann den Kontext erkennen, passende Rückfragen stellen und daraus einen strukturierten nächsten Schritt machen. Testen Sie mich z. B. mit Branche + Anfragevolumen + Ziel: „Wir sind ein SHK-Betrieb, haben 40 Website-Anfragen im Monat und wollen mehr qualifizierte Heizungsanfragen.“"};
 }
 let demoHistory=[];
 function getDemoHistory(){return demoHistory.slice(-8)}
-async function askCora(text){
+async function askCora(text, history=[]){
   const local=answer(text);
   try{
     const res=await fetch("https://bespoke-empanada-7e447d.netlify.app/.netlify/functions/cora-chat",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({message:text,history:getDemoHistory()})
+      body:JSON.stringify({message:text,history:history.slice(-8)})
     });
     const data=await res.json();
     if(!res.ok||!data.ok||!data.reply)throw new Error("AI unavailable");
@@ -112,9 +144,10 @@ async function sendDemo(text){
   if(!text.trim())return;
   const clean=text.trim();
   bubble(clean,true);
+  const priorHistory=demoHistory.slice(-8);
   demoHistory.push({role:"user",text:clean});
   const wait=document.createElement("div");wait.className="typing";wait.textContent="Cora schreibt …";messages.appendChild(wait);
-  const r=await askCora(clean);
+  const r=await askCora(clean,priorHistory);
   wait.remove();
   bubble(r.text);
   demoHistory.push({role:"model",text:r.text});
