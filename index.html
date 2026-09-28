@@ -155,7 +155,7 @@ function localAnswer(text){
   if(/(\d+(?:[.,]\d+)?)\s*%/.test(t) && merged.inquiries){
     const rate=merged.conversionRate;
     const potential=merged.inquiries*rate/100;
-    return {text:"Mit 40 Website-Anfragen und einer Abschlussquote von "+rate+" % sprechen wir rechnerisch von etwa "+potential.toLocaleString("de-DE",{maximumFractionDigits:1})+" Abschlüssen pro Monat — sofern sich die 25 % tatsächlich auf diese Website-Anfragen beziehen. Der nächste wirtschaftlich relevante Wert ist Ihr durchschnittlicher Auftragswert. Damit lässt sich ein Szenario für den möglichen Wert der qualifizierten Anfragen aufbauen. Das ist keine Umsatzgarantie, sondern eine transparente Modellrechnung.",...merged,goal:"Wirtschaftlichkeit prüfen",next:"Durchschnittlichen Auftragswert nennen"};
+    return {text:"Mit "+merged.inquiries+" Website-Anfragen und einer Abschlussquote von "+rate+" % sprechen wir rechnerisch von etwa "+potential.toLocaleString("de-DE",{maximumFractionDigits:1})+" Abschlüssen pro Monat — sofern sich die 25 % tatsächlich auf diese Website-Anfragen beziehen. Der nächste wirtschaftlich relevante Wert ist Ihr durchschnittlicher Auftragswert. Damit lässt sich ein Szenario für den möglichen Wert der qualifizierten Anfragen aufbauen. Das ist keine Umsatzgarantie, sondern eine transparente Modellrechnung.",...merged,goal:"Wirtschaftlichkeit prüfen",next:"Durchschnittlichen Auftragswert nennen"};
   }
 
   if(/lohnt|roi|wirtschaft|auszahl|rentiert|umsatz|wert/.test(t)){
