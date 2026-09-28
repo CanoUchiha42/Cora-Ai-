@@ -1,0 +1,1 @@
+window.CoraROI={calculate(s){const n=Number(s.monthlyWebsiteInquiries),r=Number(s.conversionRate)/100,a=Number(s.averageOrderValue);if(!n||!r||!a)return null;const deals=n*r,monthly=deals*a;return{deals,monthly,annual:monthly*12,disclaimer:"Modellrechnung auf Basis Ihrer Angaben, keine Umsatzgarantie."}}};
