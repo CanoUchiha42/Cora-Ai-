@@ -1,4 +1,4 @@
-const MODEL = "gemini-2.5-flash-lite";
+const MODEL = "gemini-2.5-flash";
 const MAX_MESSAGE_LENGTH = 1800;
 const ALLOWED_ORIGIN = "https://canouchiha42.github.io";
 
@@ -82,6 +82,7 @@ const json = (body: unknown, status = 200) =>
 
 export default async (request: Request) => {
   if (request.method === "OPTIONS") return json({ ok: true });
+  if (request.method === "GET") return json({ ok: true, service: "cora-chat", model: MODEL, configured: Boolean(Netlify.env.get("GEMINI_API_KEY")) });
   if (request.method !== "POST") return json({ ok: false, error: "Method not allowed" }, 405);
 
   const apiKey = Netlify.env.get("GEMINI_API_KEY");
