@@ -97,8 +97,17 @@ function answer(text){
        (k==="kanzlei"&&/kanzlei|anwalt|recht|mandat/.test(t))){r=replies[k];break}
   }
 
+  if(/welches|welcher|welche|paket|modell|basic|pro|enterprise/.test(t) && /mitarbeiter|anfragen|mehr leads|mehr kunden|mehr aufträge/.test(t)){
+    const em=t.match(/(\d+)\s*(mitarbeiter|personen|beschäftigte|angestellte)/);
+    const n=em?Number(em[1]):null;
+    if(n!==null && n>=15){
+      return {text:"Für Ihren beschriebenen Fall würde ich Cora Pro als naheliegende Konfiguration einordnen. Pro kostet 1.495 € einmalig für die Einrichtung und 895 € pro Monat. Für einen Handwerksbetrieb mit rund 20 Mitarbeitern kann Cora z. B. zwischen Heizungs-, Bad- und Wartungsanfragen unterscheiden, Einsatzgebiet und Projektart abfragen und Kontaktdaten strukturiert für Ihr Team vorbereiten. Das ist besonders interessant, wenn Sie nicht nur mehr Kontakte, sondern besser vorbereitete Anfragen möchten.",industry:r?.industry||"Handwerk / SHK",need:"Anfragen qualifizieren",next:"Leistung + Anfrageprozess festlegen"};
+    }
+    return {text:"Für die Paketwahl sind neben der Mitarbeiterzahl vor allem Anfragevolumen und gewünschte Qualifizierungstiefe entscheidend. Basic startet bei 895 € Setup + 495 €/Monat, Pro bei 1.495 € Setup + 895 €/Monat. Wenn Sie mehr qualifizierte Anfragen gewinnen und mehrere Anfragetypen strukturiert erfassen möchten, ist Pro die naheliegende Konfiguration."};
+  }
+
   if(/preis|kosten|basic|pro|monatlich|setup/.test(t)){
-    return {text:"Cora Basic: 895 € einmaliges Setup + 495 € monatlich. Cora Pro: 1.495 € einmaliges Setup + 895 € monatlich. Enterprise: Preis auf Anfrage. Wenn Sie mir Ihre ungefähren Website-Anfragen pro Monat nennen, kann ich den wirtschaftlichen Hebel anhand eines konkreten Szenarios einordnen."};
+    return {text:"Cora Basic: 895 € einmaliges Setup + 495 € monatlich. Cora Pro: 1.495 € einmaliges Setup + 895 € monatlich. Enterprise: Preis auf Anfrage."};
   }
 
   if(/roi|lohnt|auszahl|wirtschaft|wert|rentiert|umsatz/.test(t)){
@@ -111,7 +120,7 @@ function answer(text){
   }
 
   if(r){
-    if(r.industry==="Kanzlei" && /\\d+\\s*(mitarbeiter|personen|anwälte)/.test(t)){
+    if(r.industry==="Kanzlei" && /\d+\s*(mitarbeiter|personen|anwälte)/.test(t)){
       return {text:"Bei einer Kanzlei mit mehreren Mitarbeitern kann Cora den Erstkontakt vorstrukturieren: allgemeine Fragen zu Leistungen und Kontaktwegen beantworten, das Anliegen kategorisieren und relevante Kontaktdaten für die zuständige Person vorbereiten. Sie sollte dabei keine individuelle Rechtsberatung geben. Bei rund 30 Website-Anfragen im Monat könnte der konkrete Nutzen darin liegen, aus kurzen oder unklaren Nachrichten bereits strukturierte Erstinformationen zu machen.",industry:r.industry,need:"Anliegen + Bedarf strukturieren",next:"Zuständigkeit vorbereiten"};
     }
     return r;
