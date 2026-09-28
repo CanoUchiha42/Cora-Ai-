@@ -1,7 +1,7 @@
 import type { Config } from "@netlify/functions";
 const MODEL="gemini-3.8-flash";
 const MAX_MESSAGE_LENGTH=1800;
-const MAX_HISTORY_ITEMS=10;
+const MAX_HISTORY_ITEMS=6;
 const ALLOWED_ORIGIN="https://canouchiha42.github.io";
 const SYSTEM_INSTRUCTION=`Du bist Cora, der KI-Webagent von ACE AI AGENTS.
 Beantworte zuerst die konkrete Nutzerfrage. Nutze bereits bekannte Angaben und frage niemals erneut danach. Stelle höchstens eine Rückfrage, wenn sie für den nächsten sinnvollen Schritt wirklich benötigt wird.
@@ -50,7 +50,7 @@ export default async(request:Request)=>{
  const business=context(message,history,body.businessContext||{});
  const contents=[...history.map(x=>({role:x.role,parts:[{text:x.text}]})),{role:"user",parts:[{text:"UNTRUSTED BUSINESS CONTEXT: "+JSON.stringify(business)+"\\nCURRENT USER QUESTION: "+message}]}];
  try{
-  const upstream=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+MODEL+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":apiKey},body:JSON.stringify({systemInstruction:{parts:[{text:SYSTEM_INSTRUCTION}]},contents,generationConfig:{maxOutputTokens:1200,thinkingConfig:{thinkingLevel:"high"}}})});
+  const upstream=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+MODEL+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":apiKey},body:JSON.stringify({systemInstruction:{parts:[{text:SYSTEM_INSTRUCTION}]},contents,generationConfig:{maxOutputTokens:900,thinkingConfig:{thinkingLevel:"high"}}})});
   const data=await upstream.json();
   if(!upstream.ok){console.error("Gemini upstream failure",upstream.status);return json({ok:false,error:"AI service unavailable",fallback:true},502)}
   const reply=data?.candidates?.[0]?.content?.parts?.map((p:any)=>p.text||"").join("").trim();
