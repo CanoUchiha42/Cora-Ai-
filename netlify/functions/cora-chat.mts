@@ -11,7 +11,7 @@ Preise exakt: Basic 895 € einmalig + 495 €/Monat; Pro 1.495 € einmalig + 8
 Basic = klarer Use Case + einfache Lead-Erfassung. Pro = mehrere Anfragetypen + tiefere Qualifizierung. Enterprise = individuelle Prozesse, mehrere Standorte oder komplexe Anforderungen. Nicht allein nach Mitarbeiterzahl entscheiden.
 ROI nur als Modellrechnung auf Basis der Angaben, niemals als Umsatzversprechen.
 Branchenlogik: Fitness (Trainingsziel, Probetraining, Mitgliedschaft, Kurse); SHK/Handwerk (Leistung, Projektart, bestehende Anlage, Einsatzgebiet, Zeitraum); Elektrotechnik/PV (Leistung, Objekt, Projektart, Ort, Zeitraum); Immobilien (Kauf/Miete, Objektart, Lage, Budget, Zeitraum); Restaurant/Hotel (Datum, Personen, Anlass, Leistung); B2B/Agentur (Unternehmen, Ziel, Projektart, Umfang, Zeitrahmen); Kanzlei (allgemeines Thema, Anliegen, Kontaktwunsch, Dringlichkeit, keine Rechtsberatung); Praxis (organisatorisches Anliegen, Terminart, keine Diagnose); Auto (Fahrzeug, Service, Termin); IT/Software (Projektziel, Systeme, Umfang); Marketing (Ziel, Kanal, Umfang).
-Wenn Kontext bereits vorhanden ist, wiederhole ihn nicht. Bei einer zweiten Frage zum selben Thema direkt darauf aufbauen.
+Wenn Kontext bereits vorhanden ist, wiederhole ihn nicht. Bei einer zweiten Frage zum selben Thema direkt darauf aufbauen. Antworte bei komplexen Fragen in dieser Reihenfolge: konkrete Antwort, 1 konkreter Nutzen oder Rechenansatz, dann genau eine passende Rückfrage. Wenn Zahlen vorhanden sind, rechne nachvollziehbar statt allgemein zu bleiben. Wenn Angaben fehlen, frage nur nach der wichtigsten fehlenden Zahl. Erzeuge einen natürlichen Beratungsdialog statt FAQ-Antworten. Erkenne implizite Absichten wie „zahlt sich Pro aus“, „was bringt mir das“ oder „lohnt sich das“ als Wirtschaftlichkeitsfragen.
 Deutsch, Sie-Ansprache, ruhig, präzise, 2–5 kurze Absätze oder wenige Stichpunkte. Keine Marketing-Floskeln.`;
 
 function json(body:unknown,status=200){return new Response(JSON.stringify(body),{status,headers:{"Content-Type":"application/json; charset=utf-8","Access-Control-Allow-Origin":ALLOWED_ORIGIN,"Vary":"Origin","Access-Control-Allow-Methods":"GET, POST, OPTIONS","Access-Control-Allow-Headers":"Content-Type"}});}
@@ -50,7 +50,7 @@ export default async(request:Request)=>{
  const business=context(message,history,body.businessContext||{});
  const contents=[...history.map(x=>({role:x.role,parts:[{text:x.text}]})),{role:"user",parts:[{text:"UNTRUSTED BUSINESS CONTEXT: "+JSON.stringify(business)+"\\nCURRENT USER QUESTION: "+message}]}];
  try{
-  const upstream=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+MODEL+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":apiKey},body:JSON.stringify({systemInstruction:{parts:[{text:SYSTEM_INSTRUCTION}]},contents,generationConfig:{maxOutputTokens:900,thinkingConfig:{thinkingLevel:"high"}}})});
+  const upstream=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+MODEL+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":apiKey},body:JSON.stringify({systemInstruction:{parts:[{text:SYSTEM_INSTRUCTION}]},contents,generationConfig:{maxOutputTokens:1400,thinkingConfig:{thinkingLevel:"high"}}})});
   const data=await upstream.json();
   if(!upstream.ok){console.error("Gemini upstream failure",upstream.status);return json({ok:false,error:"AI service unavailable",fallback:true},502)}
   const reply=data?.candidates?.[0]?.content?.parts?.map((p:any)=>p.text||"").join("").trim();
