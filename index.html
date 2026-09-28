@@ -97,48 +97,43 @@ function answer(text){
        (k==="kanzlei"&&/kanzlei|anwalt|recht|mandat/.test(t))){r=replies[k];break}
   }
 
-  if(/welches|welcher|welche|paket|modell|basic|pro|enterprise/.test(t) && /mitarbeiter|anfragen|mehr leads|mehr kunden|mehr aufträge/.test(t)){
-    const em=t.match(/(\d+)\s*(mitarbeiter|personen|beschäftigte|angestellte)/);
-    const n=em?Number(em[1]):null;
-    if(n!==null && n>=15){
-      return {text:"Für Ihren beschriebenen Fall würde ich Cora Pro als naheliegende Konfiguration einordnen. Pro kostet 1.495 € einmalig für die Einrichtung und 895 € pro Monat. Für einen Handwerksbetrieb mit rund 20 Mitarbeitern kann Cora z. B. zwischen Heizungs-, Bad- und Wartungsanfragen unterscheiden, Einsatzgebiet und Projektart abfragen und Kontaktdaten strukturiert für Ihr Team vorbereiten. Das ist besonders interessant, wenn Sie nicht nur mehr Kontakte, sondern besser vorbereitete Anfragen möchten.",industry:r?.industry||"Handwerk / SHK",need:"Anfragen qualifizieren",next:"Leistung + Anfrageprozess festlegen"};
-    }
-    return {text:"Für die Paketwahl sind neben der Mitarbeiterzahl vor allem Anfragevolumen und gewünschte Qualifizierungstiefe entscheidend. Basic startet bei 895 € Setup + 495 €/Monat, Pro bei 1.495 € Setup + 895 €/Monat. Wenn Sie mehr qualifizierte Anfragen gewinnen und mehrere Anfragetypen strukturiert erfassen möchten, ist Pro die naheliegende Konfiguration."};
-  }
+  const asksPackage=/welches|welcher|welche|paket|modell|basic|pro|enterprise|lohnt sich/.test(t);
+  const wantsGrowth=/mehr.*(anfragen|leads|kunden|aufträge)|anfragen.*(steigern|erhöhen|mehr)/.test(t);
+  const employeeMatch=t.match(/(\d+)\s*(mitarbeiter|personen|beschäftigte|angestellte)/);
+  const inquiryMatch=t.match(/(\d+)\s*(website-?anfragen|anfragen|anfrage|kontakte)/);
+  const employees=employeeMatch?Number(employeeMatch[1]):null;
+  const inquiries=inquiryMatch?Number(inquiryMatch[1]):null;
 
-  if(/preis|kosten|basic|pro|monatlich|setup/.test(t)){
-    return {text:"Cora Basic: 895 € einmaliges Setup + 495 € monatlich. Cora Pro: 1.495 € einmaliges Setup + 895 € monatlich. Enterprise: Preis auf Anfrage."};
+  if(asksPackage && (wantsGrowth || employees!==null || inquiries!==null)){
+    if(employees!==null && employees>=15 || inquiries!==null && inquiries>=25){
+      return {text:"Für Ihren beschriebenen Fall würde ich Cora Pro als naheliegende Konfiguration einordnen. Pro kostet 1.495 € einmalig für die Einrichtung und 895 € pro Monat. Bei einem Handwerksbetrieb mit rund 20 Mitarbeitern und dem Ziel, mehr qualifizierte Anfragen zu gewinnen, kann Cora mehrere Anfragetypen unterscheiden, gezielte Rückfragen stellen und die Anfrage für Ihr Team strukturieren. Bei 40 Website-Anfragen im Monat ist außerdem interessant, wie viele davon heute ohne ausreichende Vorqualifizierung eingehen. Pro ist dann vor allem wegen der tieferen Gesprächslogik interessant – nicht allein wegen der Mitarbeiterzahl.",industry:/handwerk|shk|heizung|sanitär|wärmepumpe/i.test(t)?"Handwerk / SHK":undefined,need:"Qualifizierte Anfragen gewinnen",next:"Leistung und gewünschte Qualifizierung festlegen"};
+    }
+    return {text:"Für die Paketwahl sind vor allem Anfragevolumen, Anfragetypen und gewünschte Qualifizierungstiefe entscheidend. Basic kostet 895 € einmalig + 495 €/Monat, Pro 1.495 € einmalig + 895 €/Monat. Wenn Sie mehrere Anfragetypen gezielt qualifizieren und mehr vorbereitete Anfragen gewinnen möchten, ist Pro die naheliegende Konfiguration."};
   }
 
   if(/roi|lohnt|auszahl|wirtschaft|wert|rentiert|umsatz/.test(t)){
-    const m=t.match(/(\\d+)\\s*(anfragen|anfrage|kontakte)/);
-    const inquiries=m?Number(m[1]):null;
     if(inquiries){
-      return {text:"Bei "+inquiries+" Website-Anfragen pro Monat ist die entscheidende Frage nicht nur die Menge, sondern wie viele davon heute ohne ausreichende Qualifizierung verloren gehen. Cora kann z. B. Anliegen, Bedarf und Kontaktabsicht direkt im Erstgespräch strukturieren. Für eine belastbare Szenario-Rechnung können Sie im ROI-Rechner oben Anfragequote, Abschlussquote und Kundenwert einsetzen."};
+      return {text:"Bei "+inquiries+" Website-Anfragen pro Monat ist Pro nicht automatisch wirtschaftlich – entscheidend ist, wie viele davon heute zu einem verwertbaren Kontakt werden. Bei 40 Anfragen würde ich drei Werte betrachten: aktuelle Qualifizierungsquote, Abschlussquote und durchschnittlicher Auftragswert. Wenn Cora zusätzlich qualifizierte Anfragen vorbereitet, lässt sich daraus ein Szenario für den möglichen Mehrwert berechnen. Das ist eine Wirtschaftlichkeitsrechnung, keine Umsatzgarantie.",industry:/handwerk|shk|heizung/i.test(t)?"Handwerk / SHK":undefined,need:"Wirtschaftlichkeit prüfen",next:"Qualifizierungs- und Abschlussquote eingeben"};
     }
-    return {text:"Der wirtschaftliche Hebel entsteht dort, wo bereits Website-Interesse vorhanden ist, aber Fragen, Erreichbarkeit oder fehlende Informationen den nächsten Schritt bremsen. Der ROI-Rechner macht daraus ein Szenario mit Ihren eigenen Besucher-, Anfrage-, Abschluss- und Kundenwert-Annahmen — keine Umsatzgarantie."};
+    return {text:"Der wirtschaftliche Hebel von Cora liegt nicht einfach in mehr Chat-Nachrichten, sondern darin, vorhandenes Website-Interesse besser zu qualifizieren und in verwertbare Anfragen zu überführen. Für eine belastbare Einschätzung sollten Anfragevolumen, Qualifizierungsquote, Abschlussquote und Auftragswert betrachtet werden."};
+  }
+
+  if(/preis|kosten|basic|pro|monatlich|setup/.test(t)){
+    return {text:"Cora Basic: 895 € einmaliges Setup + 495 € monatlich. Cora Pro: 1.495 € einmaliges Setup + 895 € monatlich. Enterprise: Preis auf Anfrage. Die passende Variante hängt vor allem von Anfragevolumen und Qualifizierungstiefe ab."};
   }
 
   if(r){
     if(r.industry==="Kanzlei" && /\d+\s*(mitarbeiter|personen|anwälte)/.test(t)){
-      return {text:"Bei einer Kanzlei mit mehreren Mitarbeitern kann Cora den Erstkontakt vorstrukturieren: allgemeine Fragen zu Leistungen und Kontaktwegen beantworten, das Anliegen kategorisieren und relevante Kontaktdaten für die zuständige Person vorbereiten. Sie sollte dabei keine individuelle Rechtsberatung geben. Bei rund 30 Website-Anfragen im Monat könnte der konkrete Nutzen darin liegen, aus kurzen oder unklaren Nachrichten bereits strukturierte Erstinformationen zu machen.",industry:r.industry,need:"Anliegen + Bedarf strukturieren",next:"Zuständigkeit vorbereiten"};
+      return {text:"Bei einer Kanzlei kann Cora den Erstkontakt vorstrukturieren: allgemeine Fragen zu Leistungen und Kontaktwegen beantworten, das Anliegen kategorisieren und relevante Kontaktdaten für die zuständige Person vorbereiten. Sie sollte dabei keine individuelle Rechtsberatung geben.",industry:r.industry,need:"Anliegen + Bedarf strukturieren",next:"Zuständigkeit vorbereiten"};
     }
     return r;
   }
 
-  if(/welches|welcher|welche|paket|modell|basic|pro|enterprise/.test(t) && /mitarbeiter|anfragen|mehr leads|mehr kunden|mehr aufträge/.test(t)){
-    const em=t.match(/(\\d+)\\s*(mitarbeiter|personen|beschäftigte|angestellte)/);
-    const n=em?Number(em[1]):null;
-    if(n!==null && n>=15){
-      return {text:"Für Ihren beschriebenen Fall würde ich Cora Pro als naheliegende Konfiguration einordnen. Pro kostet 1.495 € einmalig für die Einrichtung und 895 € pro Monat. Für einen Handwerksbetrieb mit rund 20 Mitarbeitern kann Cora z. B. zwischen Heizungs-, Bad- und Wartungsanfragen unterscheiden, Einsatzgebiet und Projektart abfragen und die Kontaktdaten strukturiert für Ihr Team vorbereiten. Das ist besonders interessant, wenn Sie nicht nur mehr Kontakte, sondern besser vorbereitete Anfragen möchten.",industry:r?.industry||"Handwerk / SHK",need:"Anfragen qualifizieren",next:"Leistung + Anfrageprozess festlegen"};
-    }
-  }
-
   if(/mitarbeiter|unternehmen|website|website-anfragen/.test(t)){
-    return {text:"Cora arbeitet direkt auf Ihrer Website: Sie beantwortet freigegebene Fragen, ordnet das Anliegen ein und kann bei konkretem Interesse relevante Angaben für eine Anfrage erfassen. Wenn Sie mir Branche, Mitarbeiterzahl und Ziel nennen, kann ich die passende Konfiguration und den konkreten Ablauf einordnen."};
+    return {text:"Cora arbeitet direkt auf Ihrer Website: Sie beantwortet freigegebene Fragen, ordnet das Anliegen ein und kann bei konkretem Interesse relevante Angaben für eine Anfrage erfassen. Wenn Sie mir Branche, Anfragevolumen und Ziel nennen, kann ich die passende Konfiguration einordnen."};
   }
 
-  return {text:"Cora kann mehr als allgemeine Fragen beantworten: Sie kann den Kontext erkennen, passende Rückfragen stellen und daraus einen strukturierten nächsten Schritt machen. Testen Sie mich z. B. mit Branche + Anfragevolumen + Ziel: „Wir sind ein SHK-Betrieb, haben 40 Website-Anfragen im Monat und wollen mehr qualifizierte Heizungsanfragen.“"};
+  return {text:"Cora kann mehr als eine FAQ: Sie erkennt den Kontext, stellt gezielte Rückfragen und führt Interessenten zu einer strukturierten Anfrage. Testen Sie mich mit Branche + Anfragevolumen + Ziel, zum Beispiel: „Wir sind ein SHK-Betrieb, haben 40 Website-Anfragen im Monat und wollen mehr qualifizierte Heizungsanfragen.“"};
 }
 let demoHistory=[];
 function getDemoHistory(){return demoHistory.slice(-8)}
