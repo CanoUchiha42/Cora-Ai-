@@ -48,8 +48,8 @@ Vermeide: „Cora kann Fragen beantworten... Schreiben Sie mir Branche und Ziel�
 
 function deterministicBusinessContext(message: string, history: Array<{role?: string; text?: string}>) {
   const combined = [...history.map(h => String(h.text || "")), message].join(" ").toLowerCase();
-  const employeeMatch = combined.match(/(\\d+)\\s*(mitarbeiter|personen|beschäftigte|angestellte)/i);
-  const inquiryMatch = combined.match(/(\\d+)\\s*(website-?anfragen|anfragen|anfrage|kontakte)/i);
+  const employeeMatch = combined.match(/(\d+)\\s*(mitarbeiter|personen|beschäftigte|angestellte)/i);
+  const inquiryMatch = combined.match(/(\d+)\\s*(website-?anfragen|anfragen|anfrage|kontakte)/i);
   const employees = employeeMatch ? Number(employeeMatch[1]) : null;
   const inquiries = inquiryMatch ? Number(inquiryMatch[1]) : null;
   const wantsMoreLeads = /(mehr|mehrere|zusätzliche|qualifizierte).*(anfragen|leads|kunden)|anfragen.*(steigern|erhöhen|mehr)/i.test(combined);
