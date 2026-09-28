@@ -50,7 +50,7 @@ export default async(request:Request)=>{
  const business=context(message,history,body.businessContext||{});
  const contents=[...history.map(x=>({role:x.role,parts:[{text:x.text}]})),{role:"user",parts:[{text:"UNTRUSTED BUSINESS CONTEXT: "+JSON.stringify(business)+"\\nCURRENT USER QUESTION: "+message}]}];
  try{
-  const upstream=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+MODEL+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":apiKey},body:JSON.stringify({systemInstruction:{parts:[{text:SYSTEM_INSTRUCTION}]},contents,generationConfig:{maxOutputTokens:1200,thinkingConfig:{thinkingLevel:"low"}}})});
+  const upstream=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+MODEL+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":apiKey},body:JSON.stringify({systemInstruction:{parts:[{text:SYSTEM_INSTRUCTION}]},contents,generationConfig:{maxOutputTokens:1200,thinkingConfig:{thinkingLevel:"high"}}})});
   const data=await upstream.json();
   if(!upstream.ok){console.error("Gemini upstream failure",upstream.status);return json({ok:false,error:"AI service unavailable",fallback:true},502)}
   const reply=data?.candidates?.[0]?.content?.parts?.map((p:any)=>p.text||"").join("").trim();
