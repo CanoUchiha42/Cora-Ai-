@@ -1,8 +1,8 @@
 import type { Config } from "@netlify/functions";
 const ALLOWED_ORIGIN="https://canouchiha42.github.io";
 const MAX_FIELD=1000;
-const EMAIL=/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
-const PHONE=/^[+0-9 ()\\/-]{6,}$/;
+const EMAIL=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE=/^[+0-9 ()\/-]{6,}$/;
 const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{"Content-Type":"application/json; charset=utf-8","Access-Control-Allow-Origin":ALLOWED_ORIGIN,"Access-Control-Allow-Methods":"POST, OPTIONS","Access-Control-Allow-Headers":"Content-Type"}});
 const clean=(v:unknown)=>String(v??"").trim().slice(0,MAX_FIELD);
 export default async(req:Request)=>{
@@ -17,7 +17,7 @@ export default async(req:Request)=>{
  if(payload.privacy_consent!=="yes"||!payload.name||!payload.company||!payload.email||!payload.message)return json({ok:false,error:"Required fields missing"},400);
  if(!EMAIL.test(payload.email))return json({ok:false,error:"Invalid email"},400);
  if(payload.phone&&!PHONE.test(payload.phone))return json({ok:false,error:"Invalid phone"},400);
- if(payload.website&&!/^https?:\\/\\/[^\\s]+$/i.test(payload.website))return json({ok:false,error:"Invalid website"},400);
+ if(payload.website&&!/^https?:\/\/[^\s]+$/i.test(payload.website))return json({ok:false,error:"Invalid website"},400);
  payload.source="Cora Website";
  try{
   const upstream=await fetch(target,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},body:new URLSearchParams(payload)});
