@@ -17,9 +17,9 @@ Deutsch, Sie-Ansprache, ruhig, präzise, 2–5 kurze Absätze oder wenige Stichp
 function json(body:unknown,status=200){return new Response(JSON.stringify(body),{status,headers:{"Content-Type":"application/json; charset=utf-8","Access-Control-Allow-Origin":ALLOWED_ORIGIN,"Vary":"Origin","Access-Control-Allow-Methods":"GET, POST, OPTIONS","Access-Control-Allow-Headers":"Content-Type"}});}
 function context(message:string,history:Array<{role?:string;text?:string}>,provided:any){
  const combined=[...history.map(x=>String(x.text||"")),message].join(" ").toLowerCase();
- const em=combined.match(/(\d+)\\s*(mitarbeiter|personen|beschäftigte|angestellte)/i);
- const iq=combined.match(/(\d+)\\s*(website[- ]?anfragen|anfragen|kontakte)/i);
- const cr=combined.match(/(\d+(?:[.,]\d+)?)\\s*%\\s*(abschlussquote|abschlussrate|conversion(?:rate)?)/i);
+ const em=combined.match(/(\d+)\s*(mitarbeiter|personen|beschäftigte|angestellte)/i);
+ const iq=combined.match(/(\d+)\s*(website[- ]?anfragen|anfragen|kontakte)/i);
+ const cr=combined.match(/(\d+(?:[.,]\d+)?)\s*%\s*(abschlussquote|abschlussrate|conversion(?:rate)?)/i);
  let industry="";
  if(/handwerk|shk|heizung|wärmepumpe|sanitär|bad/.test(combined))industry="Handwerk / SHK";
  else if(/fitnessstudio|fitness|probetraining/.test(combined))industry="Fitnessstudio";
