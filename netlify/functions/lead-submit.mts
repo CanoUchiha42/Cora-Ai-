@@ -1,6 +1,6 @@
 import type { Config } from "@netlify/functions";
 const ALLOWED_ORIGIN="https://canouchiha42.github.io";
-const MAX_FIELD=1000;
+const MAX_FIELD=1000;\nconst EMAIL=/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\nconst PHONE=/^[+0-9 ()\\/-]{6,}$/;
 const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{"Content-Type":"application/json; charset=utf-8","Access-Control-Allow-Origin":ALLOWED_ORIGIN,"Access-Control-Allow-Methods":"POST, OPTIONS","Access-Control-Allow-Headers":"Content-Type"}});
 const clean=(v:unknown)=>String(v??"").trim().slice(0,MAX_FIELD);
 export default async(req:Request)=>{
@@ -10,8 +10,8 @@ export default async(req:Request)=>{
  const target=Netlify.env.get("CORA_LEADS_URL");
  if(!target)return json({ok:false,error:"Lead endpoint not configured"},500);
  let body:any;try{body=await req.json()}catch{return json({ok:false,error:"Invalid JSON"},400)}
- const payload:any={};["name","company","email","phone","website","industry","company_size","goal","service","message","monthlyInquiries","plan","interest","privacy_consent","source","page","lead_id"].forEach(k=>{if(body[k]!==undefined)payload[k]=clean(body[k])});
- if(payload.privacy_consent!=="yes"||!payload.name||!payload.company||!payload.email||!payload.message)return json({ok:false,error:"Required fields missing"},400);
+ const payload:any={};["name","company","email","phone","website","industry","company_size","goal","service","message","monthlyInquiries","plan","interest","privacy_consent","source","page","lead_id","website_check"].forEach(k=>{if(body[k]!==undefined)payload[k]=clean(body[k])});
+ if(body.website_check)return json({ok:false,error:"Invalid submission"},400);\n if(payload.privacy_consent!=="yes"||!payload.name||!payload.company||!payload.email||!payload.message)return json({ok:false,error:"Required fields missing"},400);\n if(!EMAIL.test(payload.email))return json({ok:false,error:"Invalid email"},400);\n if(payload.phone&&!PHONE.test(payload.phone))return json({ok:false,error:"Invalid phone"},400);\n if(payload.website&&!/^https?:\\/\\/[^\\s]+$/i.test(payload.website))return json({ok:false,error:"Invalid website"},400);
  payload.source="Cora Website";
  try{
   const upstream=await fetch(target,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},body:new URLSearchParams(payload)});
